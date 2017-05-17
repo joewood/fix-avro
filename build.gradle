@@ -19,6 +19,10 @@ repositories {
     jcenter()
 }
 
+
+
+
+
 dependencies {
     // The production code uses Guava
     compile 'com.google.guava:guava:20.0'
@@ -30,6 +34,18 @@ dependencies {
     // Use JUnit test framework
     testCompile 'junit:junit:4.12'
 }
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+ dependencies {
+    classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.0'
+  }
+}
+
+apply plugin: 'com.github.johnrengelman.shadow'
+
 
 // Define the main class for the application
 mainClassName = 'App'

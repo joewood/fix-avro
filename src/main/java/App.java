@@ -56,56 +56,64 @@ public class App {
 
     public static String fieldLine(String fieldName, String fieldType, boolean optional, boolean array) {
         ArrayList<String> fields = new ArrayList<>();
-        fields.add("\"name\": \"" + fieldType.charAt(0) + fieldType.substring(2) + "\" ");
+        fields.add("\"name\": \"" + fieldName.charAt(0) + fieldName.substring(1) + "\" ");
         String type = "\"" + decodeType(fieldType) + "\"";
         if (array) {
             fields.add("\"items\": " + type);
             type = "array";
         }
         if (optional) {
-            type = "[null," + type + "]";
+            type = "[ null, " + type + " ]";
         }
         fields.add("\"type\": " + type);
-        return "\t{ " + String.join(", ", fields) + " }";
+        return "\t\t{ " + String.join(", ", fields) + " }";
     }
 
-    private static java.util.List<String> createType(String name, quickfix.DataDictionary dict, int[] fields) {
+    private static java.util.List<String> createType(String name, quickfix.DataDictionary dict, int[] fields, String messageId) {
         java.util.List<String> output = new java.util.LinkedList<>();
         java.util.List<String> dependencies = new java.util.LinkedList<>();
-        output.add("{\n\t\"type\": \"record\",\n\t\"name\": \"" + name + "\",\n\t\"fields\": [\n");
         for (int i : fields) {
             String fieldName = dict.getFieldName(i);
             // int fieldType = dict.getFieldType(i);
-            Boolean required = dict.isRequiredField("D", i);
+            Boolean required = dict.isRequiredField(messageId, i);
             FieldType ee = dict.getFieldTypeEnum(i);
 
             Boolean group = dict.isGroup("D", i);
-            String fieldTypeName = ee == null ? "UNKNOWN" : decodeType(ee.getName());
+            String fieldTypeName = ee == null ? "UNKNOWN" : ee.getName();
             boolean isArrayField = isArray(fieldTypeName);
-            output.add(fieldLine(fieldName, fieldTypeName, !required, group || isArrayField));
+            String fieldLineDef = fieldLine(fieldName, group ? fieldName + "Type" : fieldTypeName, !required,
+                    group || isArrayField);
+            output.add(fieldLineDef);
 
             if (group) {
                 GroupInfo groupInfo = dict.getGroup("D", i);
                 DataDictionary ddd = groupInfo.getDataDictionary();
-                dependencies.addAll(createType(fieldName, dict, ddd.getOrderedFields()));
+                dependencies.addAll(createType(fieldName + "Type", dict, ddd.getOrderedFields(),messageId));
             }
         }
-        output.add("\t]\n},");
+        dependencies.add("{\n\t\"type\": \"record\",\n\t\"name\": \"" + name + "\",\n\t\"fields\": [\n"
+        + String.join(",\n",output)
+        + "\n\t]\n}");
 
-        dependencies.addAll(output);
         return dependencies;
     }
 
     public static void main(String[] args) {
         try {
-            // quickfix.fix50sp2.NewOrderSingle dd = new quickfix.fix50sp2.NewOrderSingle();
-            quickfix.DataDictionary dict = new DataDictionary("FIX44.xml");
-            IntStream orderedFields = IntStream.of(dict.getOrderedFields());
-            int[] filtered = orderedFields.filter(i -> dict.isMsgField("D", i)).toArray();
-            List<String> output = createType("NewOrder", dict, filtered);
-            for (String o : output) {
-                System.out.format("%s\n", o);
+            if (args.length==0 || args[0]=="--help"){
+                System.out.println("Use fix-avro <message-name> [FIX44|FIX50]");
+                return;
             }
+            final String vers = (args.length>1) ? args[1] : "FIX50";
+            final String messageName = args[0];
+            quickfix.DataDictionary dict = new DataDictionary(vers +".xml");
+            final String messageId = dict.getMsgType(messageName);
+            // quickfix.fix50sp2.NewOrderSingle dd = new quickfix.fix50sp2.NewOrderSingle();
+            IntStream orderedFields = IntStream.of(dict.getOrderedFields());
+            int[] filtered = orderedFields.filter(i -> dict.isMsgField(messageId, i)).toArray();
+            
+            List<String> output = createType(messageName, dict, filtered, messageId);
+            System.out.println(String.join(",\n",output));
         } catch (ConfigError e) {
             System.out.format("Error " + e.getMessage());
         }
