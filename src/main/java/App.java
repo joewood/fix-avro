@@ -89,17 +89,17 @@ public class App {
                 fieldTypeName = fieldName + ee.getName();
                 if (!typeCache.containsKey(fieldTypeName)) {
                     DataDictionary ddd = groupInfo.getDataDictionary();
-                    String typeDef = String.join(",",createType(fieldTypeName, dict, ddd.getOrderedFields(), messageId, typeCache,indent+1));
+                    String typeDef = String.join(",",createType(fieldTypeName, dict, ddd.getOrderedFields(), messageId, typeCache,indent+2));
                     typeCache.put(fieldTypeName, typeDef);
                     fieldTypeName = typeDef;
                 }
             }
             String fieldLineDef = fieldLine(fieldName, fieldTypeName, !required, group || isArrayField);
-            output.add(getTabs(indent)+fieldLineDef);
+            output.add(getTabs(indent+1)+fieldLineDef);
         }
     
-        dependencies.add("{\n"+getTabs(indent)+"\"type\": \"record\",\n\t\"name\": \"" + name + "\",\n\t\"fields\": [\n"
-                + String.join(",\n", output) + "\n"+getTabs(indent)+"]\n}");
+        dependencies.add("{\n"+getTabs(indent)+"\"type\": \"record\",\n"+getTabs(indent)+"\"name\": \"" + name + "\",\n"+getTabs(indent)+"\"fields\": [\n"
+                + String.join(",\n", output) + "\n"+getTabs(indent)+"]\n"+getTabs(indent-1)+"}");
 
         return dependencies;
     }
