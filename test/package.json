@@ -1,0 +1,25 @@
+{
+  "name": "fix-avro-test",
+  "version": "0.0.1",
+  "description": "Test Script for FIX Avro",
+  "main": "test.js",
+  "scripts": {
+    "test": "node.js test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joewood/fix-avro.git"
+  },
+  "keywords": [
+    "AVRO"
+  ],
+  "author": "Joe Wood",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/joewood/fix-avro/issues"
+  },
+  "homepage": "https://github.com/joewood/fix-avro#readme",
+  "dependencies": {
+    "avro-js": "^1.8.0"
+  }
+}
