@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/joewood/fix-avro#readme",
   "dependencies": {
-    "avro-js": "^1.8.0"
+    "avro-js": "^1.8.0",
+    "avsc": "^5.0.2"
   }
 }

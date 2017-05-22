@@ -71,6 +71,7 @@ public class App {
         }
         if (optional) {
             type = "[ \"null\", " + type + " ]";
+            fields.add("\"default\": null");
         }
         fields.add("\"fixTag\": " + fixTag);
         fields.add("\"fixType\": \"" + fieldType + "\"");
