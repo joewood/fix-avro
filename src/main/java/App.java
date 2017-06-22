@@ -116,8 +116,7 @@ public class App {
                 fieldName = fieldName.substring(2,3).toLowerCase() + fieldName.substring(3);
             }
             String fieldLineDef = fieldLine(fieldName, i, fieldTypeName, subType, !required, group || isArrayField);
-            output.add(getTabs(indent + 1) + fieldLineDef
-                    + (ee.getName() == "UNKNOWN" ? "// Warning - UNKNOWN TYPE default to String" : ""));
+            output.add(getTabs(indent + 1) + fieldLineDef);
         }
         return "{\n" + getTabs(indent) + "\"type\": \"record\",\n" + getTabs(indent) + "\"name\": \"" + name + "\",\n"
                 + getTabs(indent) + "\"fields\": [\n" + String.join(",\n", output) + "\n" + getTabs(indent) + "]\n"
