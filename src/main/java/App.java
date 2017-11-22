@@ -89,10 +89,10 @@ public class App {
             boolean isTrailer = dictFixt.isTrailerField(i);
             DataDictionary useDict = (isHeader || isTrailer) ? dictFixt : dict;
 
-            String fieldName = useDict.getFieldName(i);
+            String fieldName = dd.getFieldName(i);
             Boolean required = isHeader ? useDict.isRequiredHeaderField(i)
                     : isTrailer ? useDict.isRequiredTrailerField(i) : useDict.isRequiredField(messageId, i);
-            quickfix.FieldType ee = useDict.getFieldTypeEnum(i);
+            quickfix.FieldType ee = dd.getFieldTypeEnum(i);
 
             Boolean group = isHeader ? useDict.isHeaderGroup(i) : useDict.isGroup(messageId, i);
             String fieldTypeName = (ee == null) ? ("NOTFOUND:" + useDict.getFieldType(i)) : ee.getName();
@@ -107,7 +107,7 @@ public class App {
                 fieldTypeName = fieldName.substring(2) + "Type";
                 if (!typeCache.containsKey(fieldTypeName)) {
                     DataDictionary ddd = groupInfo.getDataDictionary();
-                    subType = createType(fieldTypeName, dict, dictFixt, ddd.getOrderedFields(), messageId, typeCache,
+                    subType = createType(fieldTypeName, ddd, dictFixt, ddd.getOrderedFields(), messageId, typeCache,
                             indent + 2);
                     typeCache.put(fieldTypeName, subType);
                 }
@@ -122,6 +122,8 @@ public class App {
                 + getTabs(indent) + "\"fields\": [\n" + String.join(",\n", output) + "\n" + getTabs(indent) + "]\n"
                 + getTabs(indent - 1) + "}";
     }
+    
+    static quickfix.DataDictionary dd;
 
     public static void main(String[] args) {
         try {
@@ -133,6 +135,7 @@ public class App {
             final String messageName = (args.length > 0) ? args[0] : "TradeCaptureReport";
 
             quickfix.DataDictionary dict = new DataDictionary(vers + ".xml");
+            dd = dict;
             quickfix.DataDictionary fixtDict = new DataDictionary("FIXT11.xml");
 
             HashMap<String, String> typeCache = new HashMap<>();
